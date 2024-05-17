@@ -13,6 +13,7 @@ class SharedMemoryManager:
     def update_result(self, filename, info):
         p = Process(target=self._update_result, args=(filename, info))
         p.start()
+        p.join()
 
     def _update_result(self, filename, info):
         with self.write_lock:
@@ -29,6 +30,7 @@ class SharedMemoryManager:
     def clear_results(self):
         p = Process(target=self._clear_results)
         p.start()
+        p.join()
 
     def _clear_results(self):
         with self.write_lock:
