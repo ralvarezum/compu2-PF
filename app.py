@@ -4,7 +4,7 @@ import os
 import time
 from shared_memory_manager import SharedMemoryManager
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/templates', static_folder='templates')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_PATH'] = 1000000
 

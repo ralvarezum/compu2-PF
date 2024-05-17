@@ -1,0 +1,100 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #535050;
+    color: rgb(0, 0, 0);
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+#container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+#file-manager {
+    width: 600px;
+    margin: 65px auto;
+    padding: 30px;
+}
+
+#files-container {
+    width: 600px;
+    margin: 65px auto;
+    margin-left: -300px;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 16px;
+    background-color: #c5b8b8;
+}
+
+
+#files-title {
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+input[type="file"] {
+    width: 60%;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 16px;
+    background-color: #cecece;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+}
+
+button {
+    width: 95px;
+    height: 95px;
+    margin: 2px;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    border-radius: 16px;
+    margin-bottom: 7.5px;
+}
+
+#fileList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#fileList li {
+    background: #f9f9f9;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.file-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-metadata {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.download-link {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.download-link:hover {
+    text-decoration: underline;
+}
