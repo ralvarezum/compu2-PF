@@ -11,6 +11,7 @@ document.getElementById('uploadForm').addEventListener('submit', function(event)
     .then(data => {
         console.log(data);
         loadFiles();
+        setInterval(loadFiles, 10000);
     });
 });
 

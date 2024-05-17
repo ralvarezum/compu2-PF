@@ -1,5 +1,5 @@
 import json
-from multiprocessing import Lock
+from multiprocessing import Lock, Process
 from multiprocessing import shared_memory as shm
 
 class SharedMemoryManager:
@@ -9,8 +9,12 @@ class SharedMemoryManager:
         self.read_lock = Lock()
         self.write_lock = Lock()
         self.shared_memory.buf[0:len(json.dumps(self.data))] = json.dumps(self.data).encode()
-
+        
     def update_result(self, filename, info):
+        p = Process(target=self._update_result, args=(filename, info))
+        p.start()
+
+    def _update_result(self, filename, info):
         with self.write_lock:
             previous_data = self.get_results()
             previous_data[filename] = info
@@ -23,6 +27,10 @@ class SharedMemoryManager:
             return json.loads(json_data)
 
     def clear_results(self):
+        p = Process(target=self._clear_results)
+        p.start()
+
+    def _clear_results(self):
         with self.write_lock:
             self.shared_memory.buf[:self.shared_memory.size] = b'\x00' * self.shared_memory.size
             self.data = {}
