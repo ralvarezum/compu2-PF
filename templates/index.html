@@ -17,6 +17,12 @@
                 <button type="submit">Subir Archivo</button>
             </form>
             <hr>
+            <form action="/logout" method="POST">
+                <button type="submit">Cerrar Sesión</button>
+            </form>
+            {% if 'username' in session %}
+                <p>Usuario: {{ session['username'] }}</p>
+            {% endif %}
         </div>
     
         <div id="files-container">
