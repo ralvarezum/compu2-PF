@@ -21,6 +21,7 @@
                 <form action="/logout" method="POST">
                     <button type="submit">Cerrar Sesión</button>
                 </form>
+                <hr>
                 {% if 'username' in session %}
                     <p>Usuario: <strong>{{ session['username'] }}</strong></p>
                 {% endif %}
@@ -28,6 +29,7 @@
         
             <div id="files-container">
                 <h2 id="files-title">Archivos Disponibles</h2>
+                <hr>
                 <ul id="fileList"></ul>
             </div>
         </div>
