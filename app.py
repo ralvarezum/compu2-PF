@@ -28,6 +28,8 @@ class User(db.Model):
 
     def __repr__(self):
         return f"User('{self.username}')"
+    
+chat_messages = []
 
 @app.route('/')
 def index():
@@ -94,8 +96,16 @@ def logout():
     return redirect(url_for('login'))
 
 @socketio.on('message')
-def handle_message(message):
-    emit('message', message, broadcast=True)
+def handle_message(data):
+    username = data['username']
+    message = data['message']
+    chat_messages.append({'username': username, 'message': message})
+    emit('message', {'username': username, 'message': message}, broadcast=True)
+
+@socketio.on('connect')
+def handle_connect():
+    for message in chat_messages:
+        emit('message', {'username': message['username'], 'message': message['message']})
 
 if __name__ == '__main__':
     with app.app_context():
