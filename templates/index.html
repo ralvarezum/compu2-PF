@@ -22,7 +22,7 @@
                     <button type="submit">Cerrar Sesión</button>
                 </form>
                 {% if 'username' in session %}
-                    <p>Usuario: {{ session['username'] }}</p>
+                    <p>Usuario: <strong>{{ session['username'] }}</strong></p>
                 {% endif %}
             </div>
         
