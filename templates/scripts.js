@@ -30,7 +30,7 @@ function loadFiles() {
                 const link = document.createElement('a');
                 link.href = `/uploads/${filename}`;
                 link.className = 'download-link';
-                link.textContent = 'Descargar';
+                link.textContent = ' Descargar';
                 fileInfo.appendChild(link);
 
                 li.appendChild(fileInfo);

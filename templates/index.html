@@ -9,26 +9,37 @@
 <body>
 
     <div id="container">
-        <div id="file-manager">
-            <h1>Gestor de Archivos</h1>
-            <hr>
-            <form id="uploadForm" enctype="multipart/form-data">
-                <input type="file" name="file" id="fileInput">
-                <button type="submit">Subir Archivo</button>
-            </form>
-            <hr>
-            <form action="/logout" method="POST">
-                <button type="submit">Cerrar Sesión</button>
-            </form>
-            {% if 'username' in session %}
-                <p>Usuario: {{ session['username'] }}</p>
-            {% endif %}
+        <div id="file-section">
+            <div id="file-manager">
+                <h1>Gestor de Archivos</h1>
+                <hr>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" name="file" id="fileInput">
+                    <button type="submit">Subir Archivo</button>
+                </form>
+                <hr>
+                <form action="/logout" method="POST">
+                    <button type="submit">Cerrar Sesión</button>
+                </form>
+                {% if 'username' in session %}
+                    <p>Usuario: {{ session['username'] }}</p>
+                {% endif %}
+            </div>
+        
+            <div id="files-container">
+                <h2 id="files-title">Archivos Disponibles</h2>
+                <ul id="fileList"></ul>
+            </div>
         </div>
-    
-        <div id="files-container">
-            <h2 id="files-title">Archivos Disponibles</h2>
-            <ul id="fileList"></ul>
-        </div>
+    </div>
+
+    <div id="chat-container">
+        <h2>Chat</h2>
+        <div id="messages"></div>
+        <form id="messageForm">
+            <input type="text" id="messageInput" placeholder="Escribe un mensaje...">
+            <button type="submit">Enviar</button>
+        </form>
     </div>
 
 <hr>
@@ -36,7 +47,28 @@
     Rodrigo Alvarez - 57008 - Ing. Informática - UM
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
 <script src="templates/scripts.js"></script>
+<script>
+    var socket = io();
+    var username = "{{ session['username'] }}";
+
+    // Manejar la recepción de mensajes del servidor
+    socket.on('message', function(data) {
+        var messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML += '<p><strong>' + data.username + ': </strong>' + data.message + '</p>';
+    });
+
+    // Enviar mensaje al servidor cuando se envía el formulario
+    var messageForm = document.getElementById('messageForm');
+    var messageInput = document.getElementById('messageInput');
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var message = messageInput.value;
+        socket.emit('message', { username: username, message: message });
+        messageInput.value = '';
+    });
+</script>
 
 </body>
 </html>

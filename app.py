@@ -1,6 +1,7 @@
 from flask import Flask, request, session, jsonify, send_from_directory, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_socketio import SocketIO, emit
 import os
 import time
 from shared_memory_manager import SharedMemoryManager
@@ -11,10 +12,11 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_PATH'] = 1000000
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'your_secret_key_here'
+app.config['SECRET_KEY'] = 'your_secret_key_here'
 
 db = SQLAlchemy(app)
 shared_memory_manager = SharedMemoryManager()
+socketio = SocketIO(app)
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
@@ -91,7 +93,11 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
 
+@socketio.on('message')
+def handle_message(message):
+    emit('message', message, broadcast=True)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    socketio.run(app, debug=True)
