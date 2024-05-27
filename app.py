@@ -18,9 +18,11 @@ db = SQLAlchemy(app)
 shared_memory_manager = SharedMemoryManager()
 socketio = SocketIO(app)
 
+# Si la carpeta no existe, se crea.
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
+# Modelo para el Usuario.
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -28,9 +30,11 @@ class User(db.Model):
 
     def __repr__(self):
         return f"User('{self.username}')"
-    
-chat_messages = []
 
+# Para poder guardar los mensajes del chat y que no se pierdan.
+chat_messages = [] 
+
+# Ruta para index.
 @app.route('/')
 def index():
     if 'username' in session:
@@ -38,6 +42,7 @@ def index():
     else:
         return redirect(url_for('login'))
 
+# Ruta para login. Se verifica que exista el usuario y redirige al index.
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -49,6 +54,7 @@ def login():
             return redirect(url_for('index'))
     return render_template('login.html')
 
+# Ruta para register. Se guarda el username y la password en la bd.
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -62,6 +68,7 @@ def register():
         return redirect(url_for('index'))
     return render_template('register.html')
 
+# Ruta para cargar archivos
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -80,21 +87,25 @@ def upload_file():
         }
         shared_memory_manager.update_result(filename, file_info)
         return jsonify({'success': True, 'filename': filename}), 201
-
+    
+# Ruta para mostrar los archivos
 @app.route('/files', methods=['GET'])
 def list_files():
     files = shared_memory_manager.get_results()
     return jsonify(files)
 
+# Ruta para descargar archivos
 @app.route('/uploads/<filename>', methods=['GET'])
 def download_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+# Ruta para logout.
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
 
+# Manejar mensajes del chat
 @socketio.on('message')
 def handle_message(data):
     username = data['username']
@@ -102,6 +113,7 @@ def handle_message(data):
     chat_messages.append({'username': username, 'message': message})
     emit('message', {'username': username, 'message': message}, broadcast=True)
 
+# Manejar la conexión del cliente al servidor
 @socketio.on('connect')
 def handle_connect():
     for message in chat_messages:
@@ -110,4 +122,4 @@ def handle_connect():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=True)
+    socketio.run(app, host='::', port=5000, debug=True) # Para escuchar IPv4/6
