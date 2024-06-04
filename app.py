@@ -16,7 +16,7 @@ app.config['SECRET_KEY'] = 'your_secret_key_here'
 
 db = SQLAlchemy(app)
 shared_memory_manager = SharedMemoryManager()
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='threading')
 
 # Si la carpeta no existe, se crea.
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -33,6 +33,8 @@ class User(db.Model):
 
 # Para poder guardar los mensajes del chat y que no se pierdan.
 chat_messages = [] 
+# Usuarios conectados
+connected_users = set()
 
 # Ruta para index.
 @app.route('/')
@@ -53,6 +55,7 @@ def login():
             session['username'] = username
             return redirect(url_for('index'))
     return render_template('login.html')
+
 
 # Ruta para register. Se guarda el username y la password en la bd.
 @app.route('/register', methods=['GET', 'POST'])
@@ -105,7 +108,7 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
 
-# Manejar mensajes del chat
+# Manejar mensajes del chat. 
 @socketio.on('message')
 def handle_message(data):
     username = data['username']
@@ -113,13 +116,28 @@ def handle_message(data):
     chat_messages.append({'username': username, 'message': message})
     emit('message', {'username': username, 'message': message}, broadcast=True)
 
-# Manejar la conexión del cliente al servidor
+# Manejar la conexión del cliente al servidor. El sv envia todos los mensajes anteriores al cliente.
 @socketio.on('connect')
 def handle_connect():
+    username = session.get('username')
+    if username:
+        connected_users.add(username)
+        emit('user_connected', {'username': username}, broadcast=True)
+        emit('connected_users', list(connected_users), broadcast=True)
+    
     for message in chat_messages:
         emit('message', {'username': message['username'], 'message': message['message']})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    username = session.get('username')
+    if username and username in connected_users:
+        connected_users.remove(username)
+        emit('user_disconnected', {'username': username}, broadcast=True)
+        emit('connected_users', list(connected_users), broadcast=True)
+
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, host='::', port=5000, debug=True) # Para escuchar IPv4/6
+    socketio.run(app, host='::', port=5000, debug=True)

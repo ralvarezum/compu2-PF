@@ -41,6 +41,10 @@
                 <input type="text" id="messageInput" placeholder="Escribe un mensaje...">
                 <button type="submit">Enviar</button>
             </form>
+            <div id="connected-users">
+                <h3>Usuarios Conectados</h3>
+                <ul id="usersList"></ul>
+            </div>
         </div>
     </div>
 
@@ -59,6 +63,29 @@
     socket.on('message', function(data) {
         var messagesDiv = document.getElementById('messages');
         messagesDiv.innerHTML += '<p><strong>' + data.username + ': </strong>' + data.message + '</p>';
+    });
+
+    // Manejar la recepción de notificaciones de conexión
+    socket.on('user_connected', function(data) {
+        var messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML += '<p><em>' + data.username + ' se ha conectado.</em></p>';
+    });
+
+    // Manejar la recepción de notificaciones de desconexión
+    socket.on('user_disconnected', function(data) {
+        var messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML += '<p><em>' + data.username + ' se ha desconectado.</em></p>';
+    });
+
+    // Manejar la recepción de la lista de usuarios conectados
+    socket.on('connected_users', function(data) {
+        var usersList = document.getElementById('usersList');
+        usersList.innerHTML = ''; // Limpiar la lista
+        data.forEach(function(user) {
+            var li = document.createElement('li');
+            li.textContent = user;
+            usersList.appendChild(li);
+        });
     });
 
     // Enviar mensaje al servidor cuando se envía el formulario
