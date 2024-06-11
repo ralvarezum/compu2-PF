@@ -116,7 +116,7 @@ def handle_message(data):
     chat_messages.append({'username': username, 'message': message})
     emit('message', {'username': username, 'message': message}, broadcast=True)
 
-# Manejar la conexión del cliente al servidor. El sv envia todos los mensajes anteriores al cliente.
+# Manejar la conexión del cliente al servidor.
 @socketio.on('connect')
 def handle_connect():
     username = session.get('username')
@@ -126,8 +126,9 @@ def handle_connect():
         emit('connected_users', list(connected_users), broadcast=True)
     
     for message in chat_messages:
-        emit('message', {'username': message['username'], 'message': message['message']})
+        emit('message', {'username': message['username'], 'message': message['message']}) # El sv envia todos los mensajes anteriores al cliente.
 
+# Manejar la desconexión del cliente al servidor.
 @socketio.on('disconnect')
 def handle_disconnect():
     username = session.get('username')
