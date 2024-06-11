@@ -10,8 +10,35 @@ document.getElementById('uploadForm').addEventListener('submit', function(event)
     .then(response => response.json())
     .then(data => {
         console.log(data);
-        loadFiles();
     });
+});
+
+var socket = io();
+
+// Manejar la recepción de archivos nuevos
+socket.on('file_uploaded', function(data) {
+    const fileList = document.getElementById('fileList');
+    const li = document.createElement('li');
+
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'file-info';
+    fileInfo.innerHTML = `<strong>${data.filename}</strong>`;
+
+    const link = document.createElement('a');
+    link.href = `/uploads/${data.filename}`;
+    link.className = 'download-link';
+    link.textContent = ' Descargar';
+    fileInfo.appendChild(link);
+
+    li.appendChild(fileInfo);
+
+    const fileMetadata = document.createElement('div');
+    fileMetadata.className = 'file-metadata';
+    const uploadDate = new Date(data.timestamp * 1000);
+    fileMetadata.innerHTML = `Subido por: ${data.uploader} el ${uploadDate.toLocaleString()}`;
+    li.appendChild(fileMetadata);
+
+    fileList.appendChild(li);
 });
 
 function loadFiles() {

@@ -1,4 +1,4 @@
-from flask import Flask, request, session, jsonify, send_from_directory, render_template, redirect, url_for
+from flask import Flask, request, session, jsonify, send_from_directory, render_template, redirect, url_for, send_file
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_socketio import SocketIO, emit
@@ -89,6 +89,10 @@ def upload_file():
             'uploader': uploader
         }
         shared_memory_manager.update_result(filename, file_info)
+        
+        # Emitir evento a través de Socket.IO para notificar a los clientes
+        socketio.emit('file_uploaded', {'filename': filename, 'uploader': uploader, 'timestamp': file_info['timestamp']})
+        
         return jsonify({'success': True, 'filename': filename}), 201
     
 # Ruta para mostrar los archivos
@@ -100,7 +104,7 @@ def list_files():
 # Ruta para descargar archivos
 @app.route('/uploads/<filename>', methods=['GET'])
 def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+     return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), as_attachment=True)
 
 # Ruta para logout.
 @app.route('/logout', methods=['POST'])
